@@ -38,18 +38,6 @@ const css = `
     background:#050506!important;
   }
 
-  /* Phone authority: the old video/auth hero must never occupy mobile layout space. */
-  .videoHero,#videoHero,.authHero,#authHero,
-  [class~="videoHero"],[id~="videoHero"]{
-    display:none!important;
-    visibility:hidden!important;
-    opacity:0!important;
-    position:absolute!important;
-    width:0!important;height:0!important;min-height:0!important;max-height:0!important;
-    margin:0!important;padding:0!important;border:0!important;
-    overflow:hidden!important;pointer-events:none!important;
-  }
-
   /* Real mobile hero: independent of the legacy desktop/video hero. */
   #thMobileSourceHero{
     display:block!important;
@@ -155,6 +143,24 @@ const css = `
     display:none!important
   }
 
+  #thPullSource{
+    position:fixed;z-index:2147483000;left:50%;
+    top:calc(env(safe-area-inset-top,0px) + 8px);
+    transform:translate(-50%,-75px);opacity:0;
+    min-width:175px;height:46px;padding:0 13px;border-radius:24px;
+    display:flex;align-items:center;gap:9px;
+    background:rgba(8,8,9,.95);border:1px solid rgba(255,232,77,.13);
+    box-shadow:0 12px 34px rgba(0,0,0,.4);backdrop-filter:blur(14px);
+    transition:.17s ease;pointer-events:none
+  }
+  #thPullSource.on{transform:translate(-50%,0);opacity:1}
+  #thPullSource .bolt{
+    width:29px;height:29px;border-radius:50%;display:grid;place-items:center;
+    color:#ffe84d;background:#13130f;border:1px solid rgba(255,232,77,.13)
+  }
+  #thPullSource .bolt:before{content:"ϟ";font:900 17px/1 system-ui}
+  #thPullSource strong{display:block;color:#dddcd5;font:900 6.8px/1 system-ui;letter-spacing:.08em}
+  #thPullSource small{display:block;margin-top:3px;color:#60615e;font:800 5.5px/1 system-ui;letter-spacing:.11em}
 
   @keyframes thSourceBeam{
     0%,100%{opacity:.2;transform:translateX(-40px) rotate(28deg)}
@@ -171,15 +177,6 @@ const css = `
 }
 @media(prefers-reduced-motion:reduce){
   #thMobileSourceHero .beam,#thMobileSourceHero h1:before,#thMobileSourceHero h1:after{animation:none!important}
-}
-
-@media(min-width:761px){
-  #thMobileSourceHero,#thPullSource,[id*="PullSource"],[class*="pullRefresh"],[class*="pull-refresh"]{
-    display:none!important;
-    visibility:hidden!important;
-    opacity:0!important;
-    pointer-events:none!important;
-  }
 }
 </style>`;
 
@@ -201,6 +198,9 @@ const hero = `
   </div>
   <div class="foot"><span>PRIVATE KEYS STAY LOCAL</span><span>POWERED BY ODIN</span></div>
 </section>
+<div id="thPullSource" aria-hidden="true">
+  <div class="bolt"></div><div><strong id="thPullSourceTitle">PULL TO SYNC</strong><small>THUNDER NETWORK</small></div>
+</div>
 <!-- THUNDER_MOBILE_PATCH_END -->
 `;
 
@@ -258,50 +258,85 @@ const walletTokenRuntime = `
 const runtime = `
 <script id="thunder-mobile-source-runtime">
 (()=>{
-  const mq=matchMedia("(max-width:760px)");
-  if(!mq.matches)return;
+  if(!matchMedia("(max-width:760px)").matches)return;
 
-  const HIDE=".videoHero,#videoHero,.authHero,#authHero";
+  const hero=()=>document.getElementById("thMobileSourceHero");
 
-  function enforce(){
-    const h=document.getElementById("thMobileSourceHero");
+  function placeHero(){
+    const h=hero(); if(!h)return;
     const shell=document.querySelector(".shell");
+    if(shell && h.nextElementSibling!==shell) shell.parentNode.insertBefore(h,shell);
+  }
 
-    if(h){
-      h.style.setProperty("display","block","important");
-      if(shell && h.nextElementSibling!==shell && shell.parentNode){
-        shell.parentNode.insertBefore(h,shell);
+  function killLegacyVideo(){
+    document.querySelectorAll("video").forEach(v=>{
+      try{v.pause()}catch(_){}
+      v.removeAttribute("autoplay");
+      const r=v.getBoundingClientRect();
+      v.style.setProperty("display","none","important");
+      if(r.width>innerWidth*.75 || r.height>innerHeight*.35){
+        let p=v.parentElement;
+        for(let i=0;p && i<4;i++,p=p.parentElement){
+          const key=((p.id||"")+" "+(p.className||"")).toLowerCase();
+          const pr=p.getBoundingClientRect();
+          if(/video|hero|intro|splash/.test(key) && pr.width>innerWidth*.75){
+            p.style.setProperty("display","none","important");
+            p.style.setProperty("height","0","important");
+            p.style.setProperty("min-height","0","important");
+            p.style.setProperty("margin","0","important");
+            p.style.setProperty("padding","0","important");
+            break;
+          }
+        }
       }
-    }
-
-    document.querySelectorAll(HIDE).forEach(el=>{
-      el.querySelectorAll("video").forEach(v=>{try{v.pause()}catch(_){} v.removeAttribute("autoplay")});
-      el.style.setProperty("display","none","important");
-      el.style.setProperty("visibility","hidden","important");
-      el.style.setProperty("height","0","important");
-      el.style.setProperty("min-height","0","important");
-      el.style.setProperty("max-height","0","important");
-      el.style.setProperty("margin","0","important");
-      el.style.setProperty("padding","0","important");
-      el.style.setProperty("overflow","hidden","important");
     });
+  }
 
+  function hideWalletNav(){
     document.querySelectorAll("a,button,[role=button]").forEach(el=>{
       const t=(el.textContent||"").trim().toLowerCase();
       const key=((el.id||"")+" "+(el.className||"")+" "+(el.getAttribute("data-page")||"")+" "+(el.getAttribute("data-nav")||"")).toLowerCase();
-      if((t==="wallet"||key.includes("wallet")) && el.closest(".left,aside,nav,.mobileNav")){
+      if((t==="wallet" || key.includes("wallet")) && el.closest(".left,aside,nav,.mobileNav")){
         el.style.setProperty("display","none","important");
       }
     });
   }
 
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enforce,{once:true});
-  else enforce();
+  function enforce(){placeHero();killLegacyVideo();hideWalletNav()}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",enforce,{once:true}); else enforce();
+  setTimeout(enforce,100);setTimeout(enforce,600);setTimeout(enforce,1600);
 
-  setTimeout(enforce,50);
-  setTimeout(enforce,300);
-  setTimeout(enforce,1000);
   new MutationObserver(enforce).observe(document.documentElement,{subtree:true,childList:true});
+
+  let y0=0,pull=0,tracking=false,busy=false;
+  const box=()=>document.getElementById("thPullSource");
+  const title=()=>document.getElementById("thPullSourceTitle");
+  addEventListener("touchstart",e=>{
+    if(busy||scrollY>1||e.touches.length!==1)return;
+    y0=e.touches[0].clientY;tracking=true;pull=0;
+  },{passive:true});
+  addEventListener("touchmove",e=>{
+    if(!tracking||busy)return;
+    const dy=e.touches[0].clientY-y0;
+    if(dy<=0)return;
+    pull=Math.min(100,dy*.5);
+    if(pull<8)return;
+    e.preventDefault();
+    box()?.classList.add("on");
+    if(title())title().textContent=pull>=62?"RELEASE TO SYNC":"PULL TO SYNC";
+  },{passive:false});
+  addEventListener("touchend",()=>{
+    if(!tracking||busy)return;
+    tracking=false;
+    if(pull<62){box()?.classList.remove("on");return}
+    busy=true;
+    if(title())title().textContent="SYNCING THUNDER";
+    if(navigator.vibrate)navigator.vibrate(18);
+    setTimeout(()=>{
+      if(title())title().textContent="THUNDER LIVE";
+      setTimeout(()=>{box()?.classList.remove("on");busy=false;pull=0;location.reload()},380);
+    },650);
+  },{passive:true});
 })();
 </script>`;
 
