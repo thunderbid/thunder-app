@@ -351,11 +351,18 @@ const runtime = `
   if (html.includes("</head>")) html = html.replace("</head>", css + walletTokenCss + "\n</head>");
   else html = css + html;
 
-  if (html.includes("<body")) {
-    html = html.replace(/(<body\\b[^>]*>)/i, "$1\n" + hero);
+  const bodyMatch = html.match(/<body[^>]*>/i);
+  if (bodyMatch) {
+    html = html.replace(bodyMatch[0], bodyMatch[0] + "\n" + hero);
   } else {
     html = hero + html;
   }
+
+  // Replace the legacy lightning coin inside the featured Wallet card with the real ODIN token artwork.
+  html = html.replace(
+    /<div([^>]*class=["'][^"']*thWalletFeedHeroCoin[^"']*["'][^>]*)>[\s\S]*?<\/div>\s*<\/div>/i,
+    '<div$1 class="thWalletFeedHeroCoin thWalletTokenVisual"><img src="/wallet/thunder-coin.webp" alt="ODIN token" loading="eager" decoding="async"></div>'
+  );
 
   if (html.includes("</body>")) html = html.replace("</body>", walletTokenRuntime + runtime + "\n</body>");
   else html += runtime;
