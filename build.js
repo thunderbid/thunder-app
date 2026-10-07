@@ -19,7 +19,10 @@ function cleanPreviousPatch(html) {
   return html
     .replace(/<!-- THUNDER_MOBILE_PATCH_START -->[\s\S]*?<!-- THUNDER_MOBILE_PATCH_END -->/g, "")
     .replace(/<style id="thunder-mobile-source-authority">[\s\S]*?<\/style>/g, "")
-    .replace(/<script id="thunder-mobile-source-runtime">[\s\S]*?<\/script>/g, "");
+    .replace(/<script id="thunder-mobile-source-runtime">[\s\S]*?<\/script>/g, "")
+    .replace(/<style id="thunder-wallet-token-authority">[\s\S]*?<\/style>/g, "")
+    .replace(/<script id="thunder-wallet-token-runtime">[\s\S]*?<\/script>/g, "");
+
 }
 
 const css = `
@@ -337,12 +340,13 @@ const runtime = `
 
 (async()=>{
   fs.rmSync(DIST,{recursive:true,force:true});
-  fs.mkdirSync(path.join(DIST,"wallet"),{recursive:true});\n  fs.copyFileSync(path.join(process.cwd(),"assets","thunder-coin.webp"),path.join(DIST,"wallet","thunder-coin.webp"));
+  fs.mkdirSync(path.join(DIST,"wallet"),{recursive:true});
+  fs.copyFileSync(path.join(process.cwd(),"assets","thunder-coin.webp"),path.join(DIST,"wallet","thunder-coin.webp"));
 
   let html = await get(BASE + "/?thunder_source=" + Date.now());
   html = cleanPreviousPatch(html);
 
-  if (html.includes("</head>")) html = html.replace("</head>", css + "\n</head>");
+  if (html.includes("</head>")) html = html.replace("</head>", css + walletTokenCss + "\n</head>");
   else html = css + html;
 
   if (html.includes("<body")) {
@@ -351,7 +355,7 @@ const runtime = `
     html = hero + html;
   }
 
-  if (html.includes("</body>")) html = html.replace("</body>", runtime + "\n</body>");
+  if (html.includes("</body>")) html = html.replace("</body>", walletTokenRuntime + runtime + "\n</body>");
   else html += runtime;
 
   fs.writeFileSync(path.join(DIST,"index.html"),html);
