@@ -216,7 +216,7 @@ const walletTokenCss = `
   display:block;width:100%;height:100%;object-fit:contain;border:0!important;
   border-radius:50%;background:transparent!important;box-shadow:none!important
 }
-#thWalletFeedHero .thWalletFeedHeroCoin svg,
+#thWalletFeedHero .thWalletFeedHeroMark,\n#thWalletFeedHero .thWalletFeedHeroCoin svg,
 #thWalletFeedHero .thWalletFeedCoinInner,
 #thWalletFeedHero .thWalletVisual svg,
 #thWalletFeedHero .thWalletVisual .walletIcon,
@@ -357,6 +357,11 @@ const runtime = `
   } else {
     html = hero + html;
   }
+
+  html = html.replace(
+    /<span[^>]*class=["'][^"']*thWalletFeedHeroMark[^"']*["'][^>]*>[\s\S]*?<\/span>/i,
+    ""
+  );
 
   // Replace the legacy lightning coin inside the featured Wallet card with the real ODIN token artwork.
   html = html.replace(
