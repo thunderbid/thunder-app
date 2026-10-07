@@ -216,6 +216,8 @@ const walletTokenCss = `
   display:block;width:100%;height:100%;object-fit:contain;border:0!important;
   border-radius:50%;background:transparent!important;box-shadow:none!important
 }
+#thWalletFeedHero .thWalletFeedHeroCoin svg,
+#thWalletFeedHero .thWalletFeedCoinInner,
 #thWalletFeedHero .thWalletVisual svg,
 #thWalletFeedHero .thWalletVisual .walletIcon,
 #thWalletFeedHero .thWalletVisual [class*="walletIcon"]{display:none!important}
@@ -232,23 +234,23 @@ const walletTokenRuntime = `
     const card=document.getElementById("thWalletFeedHero");
     if(!card)return;
 
-    let visual=card.querySelector(".thWalletVisual,.walletVisual,[class*='WalletVisual'],[class*='walletVisual']");
-    if(!visual){
-      const candidates=[...card.querySelectorAll("div")].filter(el=>{
-        const r=el.getBoundingClientRect();
-        return r.width>=60 && r.height>=60 && r.width<220 && r.height<220;
-      });
-      visual=candidates.find(el=>el.querySelector("svg,img"))||null;
-    }
-    if(!visual)return;
+    const coin=card.querySelector(".thWalletFeedHeroCoin");
+    if(!coin)return;
+    if(coin.dataset.thToken==="1")return;
 
-    if(visual.dataset.thToken==="1")return;
-    visual.dataset.thToken="1";
-    visual.classList.add("thWalletTokenVisual");
-    visual.innerHTML='<img src="'+TOKEN+'" alt="ODIN token" loading="eager" decoding="async">';
+    coin.dataset.thToken="1";
+    coin.classList.add("thWalletTokenVisual");
+    coin.innerHTML='<img src="'+TOKEN+'" alt="ODIN token" loading="eager" decoding="async">';
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",apply,{once:true});else apply();
-  setTimeout(apply,120);setTimeout(apply,700);setTimeout(apply,1800);
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",apply,{once:true});
+  } else {
+    apply();
+  }
+  setTimeout(apply,80);
+  setTimeout(apply,500);
+  setTimeout(apply,1500);
   new MutationObserver(apply).observe(document.documentElement,{subtree:true,childList:true});
 })();
 </script>`;
