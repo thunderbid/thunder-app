@@ -356,7 +356,10 @@ const runtime = `
 
   fs.writeFileSync(path.join(DIST,"index.html"),html);
 
-  const tokenImage = await get(BASE + "/wallet/thunder-coin.webp?thunder_source=" + Date.now(),true);\n  fs.writeFileSync(path.join(DIST,"wallet","thunder-coin.webp"),tokenImage);\n\n  const walletIndex = await get(BASE + "/wallet/?thunder_source=" + Date.now());
+  const tokenImage = await get(BASE + "/wallet/thunder-coin.webp?thunder_source=" + Date.now(),true);
+  fs.writeFileSync(path.join(DIST,"wallet","thunder-coin.webp"),tokenImage);
+
+  const walletIndex = await get(BASE + "/wallet/?thunder_source=" + Date.now());
   fs.writeFileSync(path.join(DIST,"wallet","index.html"),walletIndex);
   fs.writeFileSync(path.join(DIST,"wallet","wallet.html"),walletIndex);
 
