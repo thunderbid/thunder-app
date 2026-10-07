@@ -337,7 +337,7 @@ const runtime = `
 
 (async()=>{
   fs.rmSync(DIST,{recursive:true,force:true});
-  fs.mkdirSync(path.join(DIST,"wallet"),{recursive:true});
+  fs.mkdirSync(path.join(DIST,"wallet"),{recursive:true});\n  fs.copyFileSync(path.join(process.cwd(),"assets","thunder-coin.webp"),path.join(DIST,"wallet","thunder-coin.webp"));
 
   let html = await get(BASE + "/?thunder_source=" + Date.now());
   html = cleanPreviousPatch(html);
