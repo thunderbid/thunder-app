@@ -201,6 +201,55 @@ const hero = `
 <!-- THUNDER_MOBILE_PATCH_END -->
 `;
 
+
+const walletTokenCss = `
+<style id="thunder-wallet-token-authority">
+#thWalletFeedHero .thWalletTokenVisual{
+  width:96px;height:96px;flex:0 0 96px;display:grid;place-items:center;
+  border-radius:50%;overflow:hidden;background:transparent!important;
+  border:0!important;box-shadow:none!important
+}
+#thWalletFeedHero .thWalletTokenVisual img{
+  display:block;width:100%;height:100%;object-fit:contain;border:0!important;
+  border-radius:50%;background:transparent!important;box-shadow:none!important
+}
+#thWalletFeedHero .thWalletVisual svg,
+#thWalletFeedHero .thWalletVisual .walletIcon,
+#thWalletFeedHero .thWalletVisual [class*="walletIcon"]{display:none!important}
+@media(max-width:760px){
+  #thWalletFeedHero .thWalletTokenVisual{width:78px;height:78px;flex-basis:78px}
+}
+</style>`;
+
+const walletTokenRuntime = `
+<script id="thunder-wallet-token-runtime">
+(()=>{
+  const TOKEN="/wallet/thunder-coin.webp";
+  function apply(){
+    const card=document.getElementById("thWalletFeedHero");
+    if(!card)return;
+
+    let visual=card.querySelector(".thWalletVisual,.walletVisual,[class*='WalletVisual'],[class*='walletVisual']");
+    if(!visual){
+      const candidates=[...card.querySelectorAll("div")].filter(el=>{
+        const r=el.getBoundingClientRect();
+        return r.width>=60 && r.height>=60 && r.width<220 && r.height<220;
+      });
+      visual=candidates.find(el=>el.querySelector("svg,img"))||null;
+    }
+    if(!visual)return;
+
+    if(visual.dataset.thToken==="1")return;
+    visual.dataset.thToken="1";
+    visual.classList.add("thWalletTokenVisual");
+    visual.innerHTML='<img src="'+TOKEN+'" alt="ODIN token" loading="eager" decoding="async">';
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",apply,{once:true});else apply();
+  setTimeout(apply,120);setTimeout(apply,700);setTimeout(apply,1800);
+  new MutationObserver(apply).observe(document.documentElement,{subtree:true,childList:true});
+})();
+</script>`;
+
 const runtime = `
 <script id="thunder-mobile-source-runtime">
 (()=>{
@@ -307,7 +356,7 @@ const runtime = `
 
   fs.writeFileSync(path.join(DIST,"index.html"),html);
 
-  const walletIndex = await get(BASE + "/wallet/?thunder_source=" + Date.now());
+  const tokenImage = await get(BASE + "/wallet/thunder-coin.webp?thunder_source=" + Date.now(),true);\n  fs.writeFileSync(path.join(DIST,"wallet","thunder-coin.webp"),tokenImage);\n\n  const walletIndex = await get(BASE + "/wallet/?thunder_source=" + Date.now());
   fs.writeFileSync(path.join(DIST,"wallet","index.html"),walletIndex);
   fs.writeFileSync(path.join(DIST,"wallet","wallet.html"),walletIndex);
 
