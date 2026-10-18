@@ -1,8 +1,20 @@
 {
   "name": "thunder-app",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "description": "THUNDER production bridge and isolated open-source labs",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "build:labs": "node tools/build-labs.cjs",
+    "dev:labs": "node tools/serve-labs.cjs",
+    "test:labs": "playwright test"
+  },
+  "dependencies": {
+    "phaser": "3.90.0",
+    "konva": "10.9.0",
+    "howler": "2.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
   }
 }
