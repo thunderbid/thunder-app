@@ -1,0 +1,50 @@
+name: THUNDER LABS | build and browser tests
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: thunder-labs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Install exact direct dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build independent standalone HTML
+        run: npm run build:labs
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Browser regression checks
+        run: npm run test:labs
+      - name: Upload playable standalone build
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: thunder-labs-html
+          path: dist-labs/labs/scene-workshop/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload diagnostic traces
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: thunder-labs-test-results
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
