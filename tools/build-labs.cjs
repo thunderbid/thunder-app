@@ -38,7 +38,8 @@ function buildLabs(dest = path.join(ROOT, "dist-labs")) {
   const legalTag = "<!-- INJECT:LICENSES -->";
   if (!html.includes(legalTag)) throw new Error("Missing license placeholder");
   html = html.replace(legalTag, "<!--\n" + legal.replace(/-->/g, "-- >") + "\n-->");
-  if (html.includes("<!-- INJECT:")) throw new Error("Unresolved HTML inject placeholder");
+  const remaining = html.match(/<!-- INJECT:(?:LICENSES|KONVA|PHASER|HOWLER) -->/g);
+  if (remaining) throw new Error("Unresolved HTML injection placeholders: " + remaining.join(", "));
   const target = path.join(dest, "labs", "scene-workshop");
   fs.mkdirSync(target, { recursive: true });
   fs.writeFileSync(path.join(target, "index.html"), html);
