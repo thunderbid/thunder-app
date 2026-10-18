@@ -30,16 +30,16 @@ function buildLabs(dest = path.join(ROOT, "dist-labs")) {
     const js = fs.readFileSync(path.join(base, item.file), "utf8");
     const tag = "<!-- INJECT:" + item.slot + " -->";
     if (!html.includes(tag)) throw new Error("Missing placeholder: " + tag);
-    html = html.replace(tag, "<script>\n" + js.replace(/<\/script/gi, "<\\/script") + "\n<\/script>");
+    html = html.replace(tag, () => "<script>\n" + js.replace(/<\/script/gi, "<\\/script") + "\n<\/script>");
     notice.push(item.name + " " + pkg.version + " (" + (pkg.license || "see included license") + ")");
     notice.push(findLicense(base), "", "------------------------------------------------------", "");
   }
   const legal = notice.join("\n");
   const legalTag = "<!-- INJECT:LICENSES -->";
   if (!html.includes(legalTag)) throw new Error("Missing license placeholder");
-  html = html.replace(legalTag, "<!--\n" + legal.replace(/-->/g, "-- >") + "\n-->");
+  html = html.replace(legalTag, () => "<!--\n" + legal.replace(/-->/g, "-- >") + "\n-->");
   const remaining = html.match(/<!-- INJECT:(?:LICENSES|KONVA|PHASER|HOWLER) -->/g);
-  if (remaining) console.warn("Extra marker text present in bundled output:", remaining.length);
+  if (remaining) throw new Error("Unresolved HTML inject markers: " + remaining.join(", "));
   const target = path.join(dest, "labs", "scene-workshop");
   fs.mkdirSync(target, { recursive: true });
   fs.writeFileSync(path.join(target, "index.html"), html);
