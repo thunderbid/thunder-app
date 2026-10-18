@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090b0e">
+<title>THUNDER LABS | Scene Workshop</title>
+<style>
+:root{color-scheme:dark;--bg:#090b0e;--panel:#111418;--line:#2b3036;--text:#e9edf1;--muted:#89939f;--gold:#ffc84c;--blue:#6ba9ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 18% -30%,#29271b 0,transparent 40%),var(--bg);color:var(--text);font:14px Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button{font:inherit;cursor:pointer}button:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+[hidden]{display:none!important}.shell{max-width:1500px;margin:auto;padding:22px 26px 30px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:.14em}.brandmark{width:37px;height:37px;border:1px solid #534c24;border-radius:12px;display:grid;place-items:center;color:var(--gold);background:linear-gradient(150deg,#34301c,#101113);font-size:20px;box-shadow:0 6px 30px #ffd35b17}
+.brand span{font-size:17px}.brand small{display:block;font-size:9px;letter-spacing:.22em;font-weight:650;color:var(--muted);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:11px;letter-spacing:.14em}
+.light{width:7px;height:7px;border-radius:50%;background:#81d5a2;box-shadow:0 0 0 5px #81d5a211}
+.hero{margin-bottom:22px;display:flex;align-items:end;justify-content:space-between;gap:12px}.eyebrow{color:var(--gold);font-size:10px;font-weight:800;letter-spacing:.25em}
+h1{font-size:clamp(29px,3.3vw,42px);letter-spacing:-.045em;margin:8px 0 5px;line-height:1.04}p{margin:0;color:var(--muted);line-height:1.55}.hero p{font-size:13px}
+.pill{padding:9px 12px;border:1px solid var(--line);border-radius:100px;color:#b9c2cb;font-size:11px;white-space:nowrap;background:#111419}
+.workshop{border:1px solid #2c3034;border-radius:19px;background:#111418;overflow:hidden;box-shadow:0 22px 70px #0008}
+.tabs{display:flex;align-items:center;gap:5px;background:#15181d;border-bottom:1px solid var(--line);padding:12px 15px}
+.tab{background:transparent;border:1px solid transparent;color:#9aa4b0;border-radius:10px;padding:10px 18px;font-size:12px;font-weight:800;letter-spacing:.07em}
+.tab[aria-selected="true"]{color:#0b0c0e;background:var(--gold);box-shadow:0 5px 15px #f6c84c26}
+.tabs .push{flex:1}.audio{background:#22272c;color:#c2ccd5;border:1px solid #363d45;border-radius:10px;padding:10px 14px;font-size:11px;letter-spacing:.09em;font-weight:800}
+.audio[aria-pressed="true"]{border-color:#d5ad42;color:var(--gold)}
+.workspace{display:grid;grid-template-columns:210px minmax(0,1fr) 218px;min-height:542px}
+.sidebar{padding:20px 15px;border-right:1px solid var(--line)}.inspector{padding:20px 16px;border-left:1px solid var(--line)}
+.label{font-size:10px;font-weight:850;letter-spacing:.20em;color:#7f8a95;margin-bottom:15px}
+.sublabel{font-size:10px;color:#8994a0;margin-top:25px;margin-bottom:10px;letter-spacing:.15em}
+.control{display:flex;align-items:center;gap:10px;width:100%;padding:13px 11px;margin-bottom:8px;border:1px solid #2c343b;border-radius:11px;background:#1a1f24;color:#dae1e8;text-align:left;font-weight:700}
+.control:hover{border-color:#7b713d;background:#23252a}.control span{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:6px;background:#31363b;color:var(--gold);font-size:12px}
+.action{width:100%;padding:11px 10px;border-radius:10px;margin-bottom:9px;border:1px solid #37404a;background:#20262b;color:#dfe7ef;font-weight:740;font-size:12px}
+.action.primary{background:#f6c94f;color:#1d1a0a;border-color:#f6c94f}
+.action:hover{filter:brightness(1.13)}
+.note{border-top:1px solid var(--line);padding-top:16px;font-size:11px;line-height:1.7;color:#8e98a4;margin-top:19px}
+.viewport{min-width:0;background:linear-gradient(135deg,#161e1c,#0a0e12);position:relative;overflow:hidden}
+.panel{height:542px;width:100%;position:relative}
+#konvaMount,#phaserMount{height:100%;width:100%}#phaserMount canvas{display:block;margin:auto;max-width:100%;max-height:100%}
+.viewport-label{position:absolute;top:18px;left:18px;padding:9px 12px;border-radius:9px;background:#080b0cc9;color:#d7e0e7;border:1px solid #454e4a;font-size:10px;letter-spacing:.14em;font-weight:800;pointer-events:none}
+.viewport-corner{position:absolute;bottom:15px;right:16px;color:#a2adb8;font-size:10px;letter-spacing:.08em;pointer-events:none;background:#080b0cb6;padding:6px 9px;border-radius:7px}
+.inspector .metric{margin:12px 0 19px}.metric small{display:block;font-size:10px;color:#8a98a5;margin-bottom:6px;letter-spacing:.11em}.metric b{display:block;color:#e9edf1;font-size:22px;letter-spacing:-.04em}.metric b.gold{color:var(--gold)}
+.stat-grid{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #313740;padding:12px 0;font-size:12px}.stat-grid .value{color:#f5cb54;font-weight:800;text-align:right}
+.footer{display:flex;align-items:center;justify-content:space-between;padding:12px 17px;border-top:1px solid var(--line);color:#8d99a5;font-size:10px;letter-spacing:.08em;gap:12px}
+kbd{display:inline-flex;align-items:center;padding:3px 5px;background:#222a31;border:1px solid #454d55;border-radius:4px;color:#cad3db;font:10px monospace}
+.footer .right{color:#c4a450}#error{padding:14px;color:#ff8f8f;background:#391817;display:none}
+@media(max-width:1120px){.workspace{grid-template-columns:185px minmax(0,1fr)}.inspector{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:15px;border-left:0;border-top:1px solid var(--line)}.inspector>.label{width:100%;margin:0}.inspector .metric{margin:0;flex:1;min-width:110px}.inspector .stat-grid{flex:1;min-width:150px}}
+@media(max-width:720px){.shell{padding:13px 11px 22px}.hero{display:block}.hero .pill{display:inline-block;margin-top:12px}.workspace{grid-template-columns:1fr}.sidebar{border-right:0;border-bottom:1px solid var(--line);padding:13px}.sidebar>.label{margin-bottom:9px}.toolbox{display:flex;overflow:auto;gap:7px}.control{width:auto;flex:1;min-width:105px;margin:0;white-space:nowrap}.sublabel{margin-top:14px}.actions{display:flex;gap:7px}.action{margin:0}.note{display:none}.panel{height:420px}.tab{padding:9px 11px;font-size:10px}.footer{flex-wrap:wrap}.header-right{font-size:9px}}
+</style>
+</head>
+<body>
+<!-- INJECT:LICENSES -->
+<!-- INJECT:KONVA -->
+<!-- INJECT:PHASER -->
+<!-- INJECT:HOWLER -->
+<div class="shell">
+<header>
+  <div class="brand"><div class="brandmark">&#9889;</div><div><span>THUNDER</span><small>ENGINEERING / LABS</small></div></div>
+  <div class="header-right"><span class="light" aria-hidden="true"></span><span>OPEN SOURCE CORE · V1.0</span></div>
+</header>
+<div class="hero"><div><div class="eyebrow">DEVELOPMENT ENVIRONMENT / 001</div><h1>Scene Workshop<span style="color:var(--gold)">.</span></h1><p>Build, manipulate and test interactive scenes. Forge objects or drive the prototype.</p></div><div class="pill">KONVA · PHASER · HOWLER</div></div>
+<section class="workshop" aria-label="THUNDER Scene Workshop">
+<div class="tabs" role="tablist" aria-label="Workshop mode">
+<button type="button" class="tab" role="tab" aria-selected="true" data-tab="forge" id="tabForge">01 / SCENE FORGE</button>
+<button type="button" class="tab" role="tab" aria-selected="false" data-tab="drive" id="tabDrive">02 / DRIVE LAB</button><span class="push"></span>
+<button type="button" class="audio" id="audioToggle" aria-pressed="false">AUDIO OFF</button>
+</div>
+<div id="error" role="alert"></div>
+<div class="workspace">
+<aside class="sidebar">
+  <div class="label">TOOL PALETTE</div>
+  <div data-tools="forge">
+    <div class="toolbox">
+      <button class="control" type="button" data-add="tree"><span>♠</span>Tree</button>
+      <button class="control" type="button" data-add="building"><span>▣</span>Building</button>
+      <button class="control" type="button" data-add="road"><span>═</span>Road</button>
+      <button class="control" type="button" data-add="raven"><span>✦</span>Raven</button>
+    </div>
+    <div class="sublabel">OPERATIONS</div>
+    <div class="actions">
+      <button type="button" class="action" id="undoButton">↶ Undo</button>
+      <button type="button" class="action" id="deleteButton">× Delete selected</button>
+      <button type="button" class="action primary" id="pngButton">Export PNG</button>
+      <button type="button" class="action" id="jsonButton">Export JSON</button>
+    </div>
+    <p class="note">Drag objects to reposition.<br>Click an object to scale and rotate.<br><kbd>DEL</kbd> Delete · <kbd>CTRL</kbd>+<kbd>Z</kbd> Undo · <kbd>ESC</kbd> Deselect</p>
+  </div>
+  <div data-tools="drive" hidden>
+    <p style="line-height:1.9;color:#bdc9d3"><kbd>W</kbd> Accelerate<br><kbd>S</kbd> Brake / reverse<br><kbd>A</kbd> Steer left<br><kbd>D</kbd> Steer right</p>
+    <div class="sublabel">SIMULATION</div>
+    <button type="button" class="action primary" id="resetDrive">Reset run</button>
+    <p class="note">Drive between traffic. Road collisions affect speed. No account or wallet required.</p>
+  </div>
+</aside>
+<div class="viewport">
+  <section class="panel" id="forgePanel" role="tabpanel" aria-labelledby="tabForge"><div id="konvaMount"></div><div class="viewport-label">EDITABLE CANVAS / KONVA</div><div class="viewport-corner">DRAG · SCALE · EXPORT</div></section>
+  <section class="panel" id="drivePanel" role="tabpanel" aria-labelledby="tabDrive" hidden><div id="phaserMount"></div><div class="viewport-label">REALTIME / PHASER</div><div class="viewport-corner">W A S D · TOP-DOWN</div></section>
+</div>
+<aside class="inspector">
+  <div class="label">LIVE INSPECTOR</div>
+  <div class="metric"><small>ACTIVE MODULE</small><b class="gold" id="moduleName">FORGE</b></div>
+  <div class="metric"><small id="primaryLabel">SCENE OBJECTS</small><b id="primaryValue" data-testid="object-count">0</b></div>
+  <div class="stat-grid"><span id="secondaryLabel">SELECTION</span><span class="value" id="secondaryValue">NONE</span></div>
+  <div class="stat-grid"><span>ENGINE</span><span class="value" id="engineState">INITIALIZING</span></div>
+  <div class="stat-grid"><span>AUDIO</span><span class="value" id="audioState">READY / OFF</span></div>
+</aside>
+</div>
+<div class="footer"><span id="statusLine" data-testid="status">INITIALIZING</span><span class="right">THUNDER LABS · LOCAL FIRST</span></div>
+</section>
+</div>
+<script>
+(function () {
+"use strict";
+var $ = function (id) { return document.getElementById(id); };
+var state = { mode: "forge", stage: null, shapes: null, selected: null, transformer: null, history: [], game: null, driveScene: null, muted: true, sound: null, speed: 0, crashes: 0, distance: 0 };
+var status = function (message) { $("statusLine").textContent = message; };
+var error = function (e) { $("error").style.display = "block"; $("error").textContent = "ENGINE ERROR: " + (e && e.message ? e.message : String(e)); status("ENGINE FAILED"); };
+window.addEventListener("error", function (ev) { error(ev.error || ev.message); });
+function requireVendors() {
+  if (!window.Konva || !window.Phaser || !window.Howl) throw Error("Missing local open-source library. Run npm install and npm run build:labs.");
+}
+function download(filename, data, type) {
+  var blob = data instanceof Blob ? data : new Blob([data], { type: type || "application/octet-stream" });
+  var url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  window.setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+}
+function forgeItems() { return state.shapes ? state.shapes.find(".part") : []; }
+function objectData() {
+  return Array.from(forgeItems()).map(function (node) {
+    return { type: node.getAttr("itemType"), x: Math.round(node.x()), y: Math.round(node.y()), rotation: node.rotation(), scaleX: node.scaleX(), scaleY: node.scaleY() };
+  });
+}
+function updateForgeUI() {
+  $("primaryValue").textContent = String(forgeItems().length);
+  $("secondaryValue").textContent = state.selected ? String(state.selected.getAttr("itemType")).toUpperCase() : "NONE";
+}
+function record() {
+  state.history.push(JSON.stringify(objectData()));
+  if (state.history.length > 35) state.history.shift();
+  updateForgeUI();
+}
+function select(group) {
+  state.selected = group || null;
+  state.transformer.nodes(group ? [group] : []);
+  updateForgeUI();
+}
+function createPart(type, x, y, snapshot) {
+  var Konva = window.Konva;
+  var g = new Konva.Group({ x: x, y: y, draggable: true, name: "part", itemType: type });
+  if (type === "tree") {
+    g.add(new Konva.Rect({ x: -7, y: 2, width: 14, height: 69, fill: "#70543a", cornerRadius: 3 }));
+    g.add(new Konva.RegularPolygon({ x: 0, y: -2, sides: 3, radius: 49, fill: "#397f6b", stroke: "#76c2a0", strokeWidth: 2 }));
+    g.add(new Konva.RegularPolygon({ x: 0, y: -28, sides: 3, radius: 37, fill: "#4b9f80", stroke: "#91d7b0", strokeWidth: 1 }));
+  } else if (type === "building") {
+    g.add(new Konva.Rect({ x: -51, y: -45, width: 102, height: 98, fill: "#737d8c", stroke: "#ccd1d8", strokeWidth: 2, cornerRadius: 5 }));
+    g.add(new Konva.Line({ points: [-60,-44,0,-87,60,-44], fill: "#b68b55", stroke: "#e5be7d", strokeWidth: 2, closed: true }));
+    [-29,7].forEach(function (left) { g.add(new Konva.Rect({ x:left,y:-22,width:20,height:22,fill:"#284962",stroke:"#a7cddd",strokeWidth:1 })); });
+    g.add(new Konva.Rect({ x:-11,y:15,width:22,height:38,fill:"#4a3527" }));
+  } else if (type === "road") {
+    g.add(new Konva.Rect({ x:-94,y:-29,width:188,height:58,fill:"#424953",stroke:"#9ba6b0",strokeWidth:1,cornerRadius:6 }));
+    g.add(new Konva.Line({ points:[-83,0,83,0],stroke:"#f4d469",strokeWidth:3,dash:[19,14] }));
+  } else {
+    g.add(new Konva.Line({ points:[-42,10,-12,-14,0,-25,12,-14,42,10,7,7,0,31,-7,7],closed:true,fill:"#15181e",stroke:"#a1b6c8",strokeWidth:3,tension:.36 }));
+    g.add(new Konva.Circle({ x:7,y:-14,radius:3,fill:"#f5c950" }));
+  }
+  if (snapshot) { g.rotation(snapshot.rotation || 0); g.scale({ x: snapshot.scaleX || 1, y: snapshot.scaleY || 1 }); }
+  g.on("click tap", function (ev) { ev.cancelBubble = true; select(g); });
+  g.on("dragend transformend", record);
+  state.shapes.add(g);
+  return g;
+}
+function restore(json) {
+  select(null); state.shapes.destroyChildren();
+  JSON.parse(json).forEach(function (n) { createPart(n.type, n.x, n.y, n); });
+  state.shapes.batchDraw(); updateForgeUI();
+}
+function addPart(type) {
+  var w = state.stage.width(), h = state.stage.height();
+  var jitter = forgeItems().length * 17 % 120;
+  var g = createPart(type, Math.min(w - 80, Math.max(90, w / 2 + jitter - 35)), Math.min(h - 95, Math.max(115, h / 2)));
+  select(g); record(); status("OBJECT ADDED / " + type.toUpperCase());
+}
+function initForge() {
+  var Konva = window.Konva, parent = $("konvaMount"), w = parent.clientWidth || 780, h = parent.clientHeight || 542;
+  state.stage = new Konva.Stage({ container: "konvaMount", width: w, height: h });
+  var grid = new Konva.Layer({ listening: false }); state.shapes = new Konva.Layer(); var guides = new Konva.Layer();
+  state.stage.add(grid); state.stage.add(state.shapes); state.stage.add(guides);
+  function paintGrid() {
+    grid.destroyChildren();
+    grid.add(new Konva.Rect({x:0,y:0,width:state.stage.width(),height:state.stage.height(),fill:"#12201d"}));
+    for (var x=0;x<state.stage.width();x+=34) grid.add(new Konva.Line({points:[x,0,x,state.stage.height()],stroke:"#2c443a",strokeWidth:.55}));
+    for (var y=0;y<state.stage.height();y+=34) grid.add(new Konva.Line({points:[0,y,state.stage.width(),y],stroke:"#2c443a",strokeWidth:.55}));
+    grid.batchDraw();
+  }
+  paintGrid();
+  state.transformer = new Konva.Transformer({ anchorStroke:"#ffcf5c",anchorFill:"#1a2024",borderStroke:"#ffcf5c",anchorSize:9,rotateEnabled:true,keepRatio:false });
+  guides.add(state.transformer);
+  state.stage.on("click tap", function (ev) { if (ev.target === state.stage || ev.target.getLayer() === grid) select(null); });
+  createPart("road", w*.50,h*.67);
+  createPart("tree", w*.19,h*.45);
+  createPart("tree", w*.81,h*.35);
+  createPart("building", w*.54,h*.31);
+  record();
+  window.addEventListener("resize", function () {
+    if (!state.stage || state.mode !== "forge") return;
+    var nw=parent.clientWidth, nh=parent.clientHeight;
+    if (nw > 0 && nh > 0) {state.stage.size({width:nw,height:nh});paintGrid();}
+  });
+  $("engineState").textContent="KONVA ACTIVE";
+}
+function makeWav() {
+  var rate=11025, seconds=.55, count=Math.floor(rate*seconds), bytes=new ArrayBuffer(44+count*2), view=new DataView(bytes);
+  function write(off,str){for(var i=0;i<str.length;i++)view.setUint8(off+i,str.charCodeAt(i));}
+  write(0,"RIFF");view.setUint32(4,36+count*2,true);write(8,"WAVE");write(12,"fmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);
+  view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,"data");view.setUint32(40,count*2,true);
+  for(var j=0;j<count;j++){
+    var t=j/rate, envelope=Math.min(1,t*24)*Math.max(0,1-t/seconds);
+    var sample=Math.sin(t*2*Math.PI*(88+17*Math.sin(t*11)))*.17+Math.sin(t*2*Math.PI*174)*.05;
+    view.setInt16(44+j*2,Math.round(sample*envelope*32767),true);
+  }
+  var b="", arr=new Uint8Array(bytes);
+  for(var k=0;k<arr.length;k++) b+=String.fromCharCode(arr[k]);
+  return "data:audio/wav;base64,"+btoa(b);
+}
+function setAudio(enabled) {
+  if (enabled && !state.sound) state.sound = new window.Howl({ src:[makeWav()], format:["wav"], loop:true, volume:.25 });
+  if (state.sound) {if(enabled) state.sound.play(); else state.sound.stop();}
+  state.muted=!enabled;
+  $("audioToggle").textContent=enabled?"AUDIO ON":"AUDIO OFF";
+  $("audioToggle").setAttribute("aria-pressed",String(enabled));
+  $("audioState").textContent=enabled?"PLAYING":"READY / OFF";
+}
+function paintCar(scene, color) {
+  var b=scene.add.container(0,0);
+  b.add([scene.add.rectangle(0,0,39,69,color).setStrokeStyle(2,0xd9e4ed),
+         scene.add.rectangle(0,-8,29,21,0x192d36),
+         scene.add.rectangle(0,23,28,13,0x26333c),
+         scene.add.rectangle(-13,-29,7,5,0xf7dc89),
+         scene.add.rectangle(13,-29,7,5,0xf7dc89)]);
+  return b;
+}
+function initDrive() {
+  if(state.game)return;
+  var Phaser = window.Phaser, parent=$("phaserMount");
+  var W = Math.max(340, parent.clientWidth||760), H=parent.clientHeight||542;
+  var sceneConfig={
+    key:"Drive",
+    create:function(){
+      var s=this; state.driveScene=s; s.w=W;s.h=H;s.speed=0;s.roadOffset=0;s.crashes=0;s.distance=0;
+      s.bg=s.add.graphics(); s.player=paintCar(s,0xe6c357);s.player.x=W/2;s.player.y=H*.78;
+      s.traffic=[];
+      [-1,1,0,-1,1].forEach(function(lane,i){
+        var car=paintCar(s,[0x6490ae,0xbb777d,0x9fa5a7,0x6d9086,0xac83ab][i]);
+        car.x=W/2+lane*Math.min(W*.19,114);car.y=-95-i*135;
+        s.traffic.push({view:car,lane:lane});
+      });
+      s.keys=s.input.keyboard.addKeys("W,A,S,D,UP,DOWN,LEFT,RIGHT");
+      state.speed=0;state.crashes=0;state.distance=0;updateDriveUI();
+      $("engineState").textContent="PHASER ACTIVE";
+    },
+    update:function(_t,delta){
+      var s=this, dt=Math.min(delta/1000,.05);
+      var throttle=s.keys.W.isDown||s.keys.UP.isDown,brake=s.keys.S.isDown||s.keys.DOWN.isDown;
+      s.speed=Math.max(0,Math.min(240,s.speed+(throttle?185*dt:brake?-230*dt:-52*dt)));
+      var steer=(s.keys.D.isDown||s.keys.RIGHT.isDown?1:0)-(s.keys.A.isDown||s.keys.LEFT.isDown?1:0);
+      s.player.x=Phaser.Math.Clamp(s.player.x+steer*dt*(125+s.speed*.50),s.w*.21,s.w*.79);
+      s.player.angle=Phaser.Math.Linear(s.player.angle,steer*7,.15);
+      s.roadOffset=(s.roadOffset+s.speed*dt*2.3)%95;s.distance+=s.speed*dt/3600;
+      var g=s.bg;g.clear();g.fillStyle(0x142922,1);g.fillRect(0,0,s.w,s.h);
+      var left=s.w*.18,right=s.w*.82,roadWidth=right-left;
+      g.fillStyle(0x11171c,1);g.fillRect(left,0,roadWidth,s.h);
+      g.fillStyle(0xdac970,1);g.fillRect(left-5,0,5,s.h);g.fillRect(right,0,5,s.h);
+      g.fillStyle(0x3c4954,1);g.fillRect(left+8,0,3,s.h);g.fillRect(right-11,0,3,s.h);
+      g.fillStyle(0xe6d3a0,1);
+      for(var y=-95+s.roadOffset;y<s.h+95;y+=95){g.fillRect(left+roadWidth/3-2,y,4,42);g.fillRect(left+roadWidth*2/3-2,y,4,42);}
+      for(var k=0;k<12;k++){
+        var ty=((k*79+s.roadOffset*2)%(s.h+80))-45;
+        [-1,1].forEach(function(side){var tx=side<0?left-37:right+37;g.fillStyle(0x533b2c,1);g.fillRect(tx-3,ty+12,7,24);g.fillStyle(k%2?0x3b8a6d:0x4b9c78,1);g.fillCircle(tx,ty+5,16);});
+      }
+      s.player.setDepth(10);
+      s.traffic.forEach(function(item,index){
+        item.view.y+=(63+s.speed*.7)*dt;
+        if(item.view.y>s.h+95){item.view.y=-100-index*100;item.lane=[-1,0,1][(index+Math.round(s.distance*10))%3];item.view.x=s.w/2+item.lane*Math.min(s.w*.19,114);}
+        if(Math.abs(item.view.x-s.player.x)<36&&Math.abs(item.view.y-s.player.y)<53){
+          s.crashes++;s.speed*=.24;item.view.y=-160-index*130;
+        }
+      });
+      state.speed=s.speed;state.crashes=s.crashes;state.distance=s.distance;updateDriveUI();
+    }
+  };
+  state.game=new Phaser.Game({type:Phaser.AUTO,parent:"phaserMount",width:W,height:H,backgroundColor:"#0e1720",render:{pixelArt:true,antialias:false},scene:sceneConfig,scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH,width:W,height:H}});
+}
+function updateDriveUI(){
+  if(state.mode!=="drive")return;
+  $("primaryValue").textContent=String(Math.round(state.speed))+" km/h";
+  $("secondaryValue").textContent=String(state.crashes)+" HITS";
+}
+function setMode(mode) {
+  if(mode!== "drive"&&mode!=="forge")return;
+  state.mode=mode;
+  $("forgePanel").hidden=mode!=="forge";$("drivePanel").hidden=mode!=="drive";
+  document.querySelector('[data-tools="forge"]').hidden=mode!=="forge";
+  document.querySelector('[data-tools="drive"]').hidden=mode!=="drive";
+  $("tabForge").setAttribute("aria-selected",String(mode==="forge"));
+  $("tabDrive").setAttribute("aria-selected",String(mode==="drive"));
+  $("moduleName").textContent=mode.toUpperCase();
+  $("primaryLabel").textContent=mode==="forge"?"SCENE OBJECTS":"VELOCITY";
+  $("secondaryLabel").textContent=mode==="forge"?"SELECTION":"COLLISIONS";
+  if(mode==="drive"){
+    initDrive();
+    if(state.game&&state.driveScene)state.game.scene.resume("Drive");
+    $("engineState").textContent="PHASER ACTIVE";updateDriveUI();status("DRIVE LAB / W A S D");
+  } else {
+    if(state.game&&state.driveScene)state.game.scene.pause("Drive");
+    if(state.stage){state.stage.size({width:$("konvaMount").clientWidth||760,height:$("konvaMount").clientHeight||542});state.stage.draw();}
+    $("engineState").textContent="KONVA ACTIVE";updateForgeUI();status("FORGE READY / EDIT SCENE");
+  }
+}
+try {
+  requireVendors();
+  initForge();
+  document.querySelectorAll("[data-tab]").forEach(function(btn){btn.addEventListener("click",function(){setMode(btn.getAttribute("data-tab"));});});
+  document.querySelectorAll("[data-add]").forEach(function(btn){btn.addEventListener("click",function(){addPart(btn.getAttribute("data-add"));});});
+  $("undoButton").addEventListener("click",function(){if(state.history.length>1){state.history.pop();restore(state.history[state.history.length-1]);status("UNDO / RESTORED");}});
+  $("deleteButton").addEventListener("click",function(){if(state.selected){state.selected.destroy();select(null);record();status("OBJECT REMOVED");}});
+  $("pngButton").addEventListener("click",function(){var old=state.selected;select(null);var data=state.stage.toDataURL({pixelRatio:2});if(old)select(old);var a=document.createElement("a");a.href=data;a.download="THUNDER_SCENE.png";document.body.appendChild(a);a.click();a.remove();status("PNG EXPORTED");});
+  $("jsonButton").addEventListener("click",function(){download("THUNDER_SCENE.json",JSON.stringify({version:1,engine:"Konva",objects:objectData()},null,2),"application/json");status("JSON EXPORTED");});
+  $("audioToggle").addEventListener("click",function(){setAudio(state.muted);});
+  $("resetDrive").addEventListener("click",function(){if(state.driveScene){var s=state.driveScene;s.speed=0;s.crashes=0;s.distance=0;s.player.x=s.w/2;s.traffic.forEach(function(item,i){item.view.y=-95-i*135;});updateDriveUI();status("DRIVE RESET");}});
+  document.addEventListener("keydown",function(ev){
+    if(state.mode!=="forge")return;
+    if(ev.key==="Escape")select(null);
+    if((ev.key==="Delete"||ev.key==="Backspace")&&state.selected){ev.preventDefault();$("deleteButton").click();}
+    if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==="z"){ev.preventDefault();$("undoButton").click();}
+  });
+  window.THUNDER_LABS={ version:"1.0.0", getState:function(){return {mode:state.mode,objects:forgeItems().length,speed:state.speed,crashes:state.crashes,audio:!state.muted};}};
+  window.__THUNDER_LABS_READY=true;
+  status("FORGE READY / EDIT SCENE");
+} catch (e) { error(e); }
+})();
+</script>
+</body>
+</html>
